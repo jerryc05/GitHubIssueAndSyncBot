@@ -4,14 +4,21 @@ from datetime import datetime
 from math import floor
 from pathlib import Path
 from pprint import pp
+import sqlite3
 import time
 from urllib.parse import quote_plus
 
 from config import OWNER, REPO, INSTALL_ID, APP_ID, PRIVATE_PEM_PATH
 
 CONFIG_FILENAME = 'config.py'
-JWT_FILENAME = '.jwt-token.cfg'
-ACC_TOK_FILENAME = '.acc-token.cfg'
+DB_FILENAME = 'db.db'
+DB_SCHEMA_FILENAME = 'schema.sql'
+
+JWT_TABLE_NAME = 'jwt_auth'
+ACC_TABLE_NAME = 'acc_auth'
+
+ISSUES_TABLE_NAME = 'issues'
+ISSUES_SUB_ROW_NAME = '_sub'
 
 
 def self_check():
@@ -39,20 +46,32 @@ def self_check():
         exit(1)
 
 
+def get_db():
+    global db
+    if 'db' not in globals():
+        db = sqlite3.connect(DB_FILENAME, isolation_level=None)
+        db.executescript(open(DB_SCHEMA_FILENAME).read())
+    return db
+
+
 def get_jwt(cached: bool = True) -> str:
-    token_f = Path(__file__).parent / JWT_FILENAME
+    db_f = Path(__file__).parent / DB_FILENAME
     token = ''
 
     if cached:
-        if not token_f.exists():
+        if not db_f.exists():
             cached = False
         else:
-            with open(token_f, 'r') as f:
-                exp_time, token = int(
-                    f'0{f.readline().strip()}'), f.readline().strip()
-            cached = time.time() < exp_time and not not token
+            if not get_db().execute(
+                    f'select count(*) from {JWT_TABLE_NAME}').fetchone()[0]:
+                cached = False
+            else:
+                exp_time, token = get_db().execute(
+                    f'select exp_time,token from {JWT_TABLE_NAME}').fetchone()
+                cached = time.time() < exp_time and not not token
 
     if not cached:
+        print('Regenerating JWT token!')
         dur = 60
         exp_time = floor(time.time()) + dur
         token: str = jwt.encode(
@@ -66,10 +85,12 @@ def get_jwt(cached: bool = True) -> str:
             load_pem_private_key(open(PRIVATE_PEM_PATH, 'rb').read(), None),
             algorithm='RS256')
 
-        with open(token_f, 'w') as f:
-            f.write(str(exp_time))
-            f.write('\n')
-            f.write(token)
+        if get_db().execute(
+                f'select count(*) from {JWT_TABLE_NAME}').fetchone()[0]:
+            get_db().execute(f'delete from {JWT_TABLE_NAME}')
+        get_db().execute(
+            f'insert into {JWT_TABLE_NAME}(exp_time,token) values(?,?)',
+            (exp_time, token))
 
     return token
 
@@ -86,20 +107,24 @@ def new_sess(jwt: bool = False, acc_tok: bool = False):
 
 
 def get_inst_acc_tok(cached: bool = True) -> str:
-    token_f = Path(__file__).parent / ACC_TOK_FILENAME
+    db_f = Path(__file__).parent / DB_FILENAME
     retry = True
     token = ''
 
     if cached:
-        if not token_f.exists():
+        if not db_f.exists():
             cached = False
         else:
-            with open(token_f, 'r') as f:
-                exp_time, token = int(
-                    f'0{f.readline().strip()}'), f.readline().strip()
-            cached = time.time() < exp_time and not not token
+            if not get_db().execute(
+                    f'select count(*) from {ACC_TABLE_NAME}').fetchone()[0]:
+                cached = False
+            else:
+                exp_time, token = get_db().execute(
+                    f'select exp_time,token from {ACC_TABLE_NAME}').fetchone()
+                cached = time.time() < exp_time and not not token
 
     if not cached:
+        print('Regenerating ACCESS token!')
         while True:
             req = new_sess(jwt=True).post(
                 f'https://api.github.com/app/installations/{INSTALL_ID}/access_tokens'
@@ -113,10 +138,13 @@ def get_inst_acc_tok(cached: bool = True) -> str:
                     datetime.strptime(req.json()['expires_at'],
                                       '%Y-%m-%dT%H:%M:%SZ').timestamp())
                 token = req.json()['token']
-                with open(token_f, 'w') as f:
-                    f.write(str(exp_time))
-                    f.write('\n')
-                    f.write(token)
+
+                if get_db().execute( \
+                        f'select count(*) from {ACC_TABLE_NAME}').fetchone()[0]:
+                    get_db().execute(f'delete from {ACC_TABLE_NAME}')
+                get_db().execute(
+                    f'insert into {ACC_TABLE_NAME}(exp_time,token) values(?,?)',
+                    (exp_time, token))
                 break
 
     return token
@@ -180,3 +208,9 @@ def create_comment(issue_id: int, body: 'str'):
 
 if __name__ == '__main__':
     self_check()
+
+    for issue in get_db().execute(
+            'select title,body,milestone,labels,assignees,_sub,_issue_id '
+            f'from {ISSUES_TABLE_NAME} where {ISSUES_SUB_ROW_NAME}!=1'
+    ).fetchall():
+        pp(issue)

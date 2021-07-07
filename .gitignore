@@ -140,4 +140,4 @@ cython_debug/
 #############################
 .vscode/settings.json
 *.pem
-.*.cfg
+*.db
