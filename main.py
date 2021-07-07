@@ -150,14 +150,17 @@ def post_api(url: str, js: 'dict[str, object]'):
 def create_issue(title: 'str|int',
                  body: 'str|None' = None,
                  milestone: 'str|int|None' = None,
-                 labels: 'list[str]|None' = None,
-                 assignees: 'list[str]|None' = None):
-    js: 'dict[str, object]' = {'title': title}
+                 labels: 'list[str]' = [],
+                 assignees: 'list[str]' = []):
+
+    labels = list(set(labels + ['bot']))
+    js: 'dict[str, object]' = {'title': title, 'labels': labels}
+
     for val, name in ((body, 'body'), \
                       (milestone, 'milestone'), \
-                      (labels, 'labels'), \
                       (assignees, 'assignees')):
-        js[name] = val
+        if val:
+            js[name] = val
 
     return post_api(f'https://api.github.com/repos/{OWNER}/{REPO}/issues', js)
 
