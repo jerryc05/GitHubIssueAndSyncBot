@@ -3,7 +3,7 @@ from pathlib import Path
 from pprint import pp
 import time
 
-from config import OWNER, REPO, APP_ID, PRIVATE_PEM_PATH
+from config import OWNER, REPO, INSTALL_ID, APP_ID, PRIVATE_PEM_PATH
 
 CONFIG_FILENAME = 'config.py'
 TOKEN_FILENAME = '.token-info.cfg'
@@ -13,7 +13,10 @@ def self_check():
     if not Path(PRIVATE_PEM_PATH).exists():
         raise FileNotFoundError(
             f'PRIVATE_PEM_PATH=[{PRIVATE_PEM_PATH}] not found!')
-    for val, name in ((OWNER, 'OWNER'), (REPO, 'REPO')):
+    for val, name in ((OWNER, 'OWNER'), \
+                      (REPO, 'REPO'), \
+                      (INSTALL_ID, 'INSTALL_ID'), \
+                      (APP_ID, 'APP_ID')):
         if not val:
             print(f'{name} not set in {CONFIG_FILENAME}!')
             exit(1)
