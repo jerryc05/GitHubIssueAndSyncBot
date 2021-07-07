@@ -1,4 +1,6 @@
 # FOR USER #
+OWNER: str = ''
+REPO: str = ''
 
 
 # FOR DEVELOPER #
