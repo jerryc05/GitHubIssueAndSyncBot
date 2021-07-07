@@ -73,7 +73,7 @@ def get_inst_acc_tok() -> str:
     raise NotImplementedError()
 
 
-def get_sess(jwt: bool = False, acc_tok: bool = False):
+def new_sess(jwt: bool = False, acc_tok: bool = False):
     sess = Session()
     sess.headers.clear()
     sess.headers['User-Agent'] = 'bot'
@@ -87,10 +87,9 @@ def get_sess(jwt: bool = False, acc_tok: bool = False):
 if __name__ == '__main__':
     self_check()
 
-    req = get_sess(jwt=True).get('https://api.github.com/app/installations')
-    # req = get_sess(jwt=True).post(
-    #     'https://api.github.com/app/installations/{INSTALL_ID}/access_tokens')
-    # req = get_sess(acc_tok=True).post(
+    req = new_sess(jwt=True).post(
+        'https://api.github.com/app/installations/{INSTALL_ID}/access_tokens')
+    # req = new_sess(acc_tok=True).post(
     #     f'https://api.github.com/repos/{OWNER}/{REPO}/issues',
     #     json={'title': 'issue test title'})
     pp(f'{req.request.method} {req.request.url}')
