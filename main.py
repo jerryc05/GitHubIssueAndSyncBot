@@ -5,6 +5,7 @@ from math import floor
 from pathlib import Path
 from pprint import pp
 import time
+from urllib.parse import quote_plus
 
 from config import OWNER, REPO, INSTALL_ID, APP_ID, PRIVATE_PEM_PATH
 
@@ -25,17 +26,17 @@ def self_check():
             print(f'{name} not set in {CONFIG_FILENAME}!')
             exit(1)
 
-    while True:
-        try:
-            global load_pem_private_key, jwt, Session
-            from cryptography.hazmat.primitives.serialization import load_pem_private_key
-            import jwt
-            from requests import Session
-            break
-        except ImportError:
-            input(
-                'Install package [cryptography], [pyjwt], and [requests] now and press ENTER to continue! '
-            )
+    try:
+        global load_pem_private_key, jwt, Session
+        from cryptography.hazmat.primitives.serialization import load_pem_private_key
+        import jwt
+        from requests import Session
+    except ImportError:
+        print('Install these packages before running this:\n'
+              '1. [cryptography]\n'
+              '2. [pyjwt]\n'
+              '3. [requests]')
+        exit(1)
 
 
 def get_jwt(cached: bool = True) -> str:
@@ -121,12 +122,58 @@ def get_inst_acc_tok(cached: bool = True) -> str:
     return token
 
 
+def send_api(
+    method: str,
+    url: str,
+    js: 'dict[str, object]|None' = None
+) -> 'dict[str,object]|list[dict[str,object]]':
+
+    retry = True
+    while True:
+        req = new_sess(jwt=True).request(method, url, json=js)
+        if retry and req.status_code == 401:
+            get_inst_acc_tok(cached=False)
+            retry = False
+        else:
+            req.raise_for_status()
+            return req.json()
+
+
+def get_api(url: str):
+    return send_api('GET', url)
+
+
+def post_api(url: str, js: 'dict[str, object]'):
+    return send_api('POST', url, js)
+
+
+def create_issue(title: 'str|int',
+                 body: 'str|None' = None,
+                 milestone: 'str|int|None' = None,
+                 labels: 'list[str]|None' = None,
+                 assignees: 'list[str]|None' = None):
+    js: 'dict[str, object]' = {'title': title}
+    for val, name in ((body, 'body'), \
+                      (milestone, 'milestone'), \
+                      (labels, 'labels'), \
+                      (assignees, 'assignees')):
+        js[name] = val
+
+    return post_api(f'https://api.github.com/repos/{OWNER}/{REPO}/issues', js)
+
+
+def search_open_issue(title: 'str'):
+    return get_api(
+        f'https://api.github.com/search/issues?q={quote_plus(title)[:256]}+in:title+is:open+is:issue+repo:{OWNER}/{REPO}&per_page=100'
+        # TODO &page=1 ...
+    )
+
+
+def create_comment(issue_id: int, body: 'str'):
+    return post_api(
+        f'https://api.github.com/repos/{OWNER}/{REPO}/issues/{issue_id}/comments',
+        {'body': body})
+
+
 if __name__ == '__main__':
     self_check()
-
-    req = new_sess(acc_tok=True).post(
-        f'https://api.github.com/repos/{OWNER}/{REPO}/issues',
-        json={'title': 'issue test title'})
-    pp(f'{req.request.method} {req.request.url}')
-    pp(req.status_code)
-    pp(req.json())
