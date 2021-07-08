@@ -138,7 +138,9 @@ def get_inst_acc_tok(cached: bool = True) -> str:
                 get_jwt(cached=False)
                 retry = False
             else:
-                req.raise_for_status()
+                if not req.ok:
+                    pp(req.json())
+                    req.raise_for_status()
                 exp_time = int(
                     datetime.strptime(req.json()['expires_at'],
                                       r'%Y-%m-%dT%H:%M:%SZ').timestamp())
@@ -157,25 +159,35 @@ def get_inst_acc_tok(cached: bool = True) -> str:
 
 def send_api(method: str,
              url: str,
+             jwt: bool,
+             acc_tok: bool,
              js: 'dict[str, object]|None' = None) -> 'dict[str,object]':
 
     retry = True
     while True:
-        req = new_sess(jwt=True).request(method, url, json=js, timeout=60)
+        req = new_sess(jwt=jwt, acc_tok=acc_tok).request(method,
+                                                         url,
+                                                         json=js,
+                                                         timeout=60)
         if retry and req.status_code == 401:
             get_inst_acc_tok(cached=False)
             retry = False
         else:
-            req.raise_for_status()
+            if not req.ok:
+                pp(req.json())
+                req.raise_for_status()
             return req.json()
 
 
-def get_api(url: str):
-    return send_api('GET', url)
+def get_api(url: str, jwt: bool = False, acc_tok: bool = True):
+    return send_api('GET', url, jwt=jwt, acc_tok=acc_tok)
 
 
-def post_api(url: str, js: 'dict[str, object]'):
-    return send_api('POST', url, js)
+def post_api(url: str,
+             js: 'dict[str, object]|None',
+             jwt: bool = False,
+             acc_tok: bool = True):
+    return send_api('POST', url, jwt=jwt, acc_tok=acc_tok, js=js)
 
 
 def create_issue(title: 'str|int',
