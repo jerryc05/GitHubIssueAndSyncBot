@@ -197,7 +197,7 @@ def create_issue(title: 'str|int',
 
 
 def search_open_issue(title: 'str'):
-    q = f'{title[:256]} in:title is:open is:issue repo:{OWNER}/{REPO}'
+    q = f'is:issue is:open in:title repo:{OWNER}/{REPO} {title[:256]}'
     return get_api(
         f'https://api.github.com/search/issues?q={quote_plus(q)}&per_page=100'
         # TODO &page=1 ...
