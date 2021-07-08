@@ -11,10 +11,12 @@
 # How to update
 
 ```sh
-git stash -- config.py
-git fetch --depth 1
-git reset --hard origin
-git stash pop
+git stash -- config.py && { {
+    git fetch --depth 1 &&
+    git reset --hard origin;
+  };
+  git stash pop;
+}
 ```
 
 ## How to use

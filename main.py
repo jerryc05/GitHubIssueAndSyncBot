@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime
+from locale import LC_TIME, getlocale, setlocale
 from math import floor
 from pathlib import Path
 from pprint import pp
@@ -36,11 +37,11 @@ def self_check():
             exit(1)
 
     try:
-        global load_pem_private_key, jwt, Session, timezone
+        global load_pem_private_key, jwt, Session, timezone, utc
         from cryptography.hazmat.primitives.serialization import load_pem_private_key
         import jwt
         from requests import Session
-        from pytz import timezone
+        from pytz import timezone, utc
     except ImportError:
         print('Install these packages before running this:\n'
               '1. [cryptography]\n'
@@ -221,15 +222,17 @@ class Issue:
     def body(self) -> str:
         body = self._body if self._body else ''
 
-        dt = datetime.fromtimestamp(self.unix_epoch).astimezone()
+        dt = datetime.utcfromtimestamp(self.unix_epoch).replace(tzinfo=utc)
+        loc = getlocale(LC_TIME)
         body += (
             '\n\n'
             '--------------\n'
             'Time happened:\n```\n'
-            f'UTC:           {timezone("UTC").localize(dt).isoformat()}\n'
-            f'US/Eastern:    {timezone("US/Eastern").localize(dt).isoformat()}\n'
-            f'Asia/Shanghai: {timezone("Asia/Shanghai").localize(dt).isoformat()}\n'
+            f'UTC:           {dt.isoformat()}\n'
+            f'US/Eastern:    {dt.astimezone(timezone("US/Eastern")).isoformat()}, {setlocale(LC_TIME, "en_US") and dt.astimezone(timezone("US/Eastern")).strftime(r"%a %p %I:%M:%S.%f")}\n'
+            f'Asia/Shanghai: {dt.astimezone(timezone("Asia/Shanghai")).isoformat()}, {setlocale(LC_TIME, "zh_CN") and dt.astimezone(timezone("Asia/Shanghai")).strftime(r"%a %p %I:%M:%S.%f")}\n'
             '```\n')
+        setlocale(LC_TIME, loc)
         return body
 
 
