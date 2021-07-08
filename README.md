@@ -24,7 +24,6 @@
   - Only the `title` row is __REQUIRED__.
   - The `unix_epoch` field (_optional_) can be used to record when the issue happened.
     - Leave empty to use the time at insertion.
-    - If necessary, make sure you use `UTC +0` timestamp, not your local time.
   - __DO NOT__ insert into private row(s), or you will be rejected.
   - Example:
     ```sh
@@ -43,7 +42,7 @@
       );'
 
     # Trigger submission
-    ./main.py
+    python3 ./main.py
     ```
 
 0. Run `main.py` normally, __DO NOT__ forget to check for exit status.
