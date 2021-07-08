@@ -44,10 +44,10 @@ def self_check():
         from pytz import timezone, utc
     except ImportError:
         print('Install these packages before running this:\n'
-              '1. [cryptography]\n'
-              '2. [pyjwt]\n'
-              '3. [requests]\n'
-              '4. [pytz]')
+              '1. cryptography\n'
+              '2. pyjwt\n'
+              '3. requests\n'
+              '4. pytz')
         exit(1)
 
 
