@@ -10,12 +10,12 @@
 
 # How to update
 
-0.  ```sh
-    git stash -- config.py
-    git fetch --depth 1
-    git reset --hard origin
-    git stash pop
-    ```
+```sh
+git stash -- config.py
+git fetch --depth 1
+git reset --hard origin
+git stash pop
+```
 
 ## How to use
 
