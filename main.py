@@ -135,6 +135,7 @@ def get_inst_acc_tok(cached: bool = True) -> str:
                 f'https://api.github.com/app/installations/{INSTALL_ID}/access_tokens'
             )
             if retry and req.status_code == 401:
+                print('JWT token expired!')
                 get_jwt(cached=False)
                 retry = False
             else:
@@ -170,6 +171,7 @@ def send_api(method: str,
                                                          json=js,
                                                          timeout=60)
         if retry and req.status_code == 401:
+            print('ACCESS token expired!')
             get_inst_acc_tok(cached=False)
             retry = False
         else:
