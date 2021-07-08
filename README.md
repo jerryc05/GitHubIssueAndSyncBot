@@ -53,8 +53,4 @@ git stash -- config.py && { {
     - Using libraries will be much more convenient than `shell`.
       - E.g. [Python sqlite3](https://docs.python.org/3/library/sqlite3.html) and [sqlite-jdbc](https://github.com/xerial/sqlite-jdbc).
 
-      # Trigger submission
-      python3 ./main.py
-      ```
-
 0.  Run `main.py` normally, __DO NOT__ forget to check for exit status.
