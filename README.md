@@ -33,14 +33,14 @@ git stash -- config.py && { {
       sqlite3 ./db.db 'insert into issues(title) values("test title");'
 
       # Full insert
-      sqlite3 ./db.db 'insert into issues( \
-          title,body,labels,assignees,unix_epoch \
-        ) values( \
-          "Issue title", \
-          "Issue body", \
-          "bug;help wanted;java", \
-          "gh_username1;gh_username2", \
-          1625097600 \
+      sqlite3 ./db.db 'insert into issues(
+          title,body,labels,assignees,unix_epoch
+        ) values(
+          "Issue title",
+          "Issue body",
+          "bug;help wanted;java",
+          "gh_username1;gh_username2",
+          1625097600
         );'
 
       # Trigger submission
