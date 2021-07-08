@@ -1,6 +1,6 @@
 # MyIssueReportBot
 
-# First time setup
+## First time setup
 
 0.  ```sh
     git clone --depth 1 https://github.com/jerryc05/GitHubIssueReportBot.git
@@ -8,7 +8,7 @@
 
 0.  Edit `config.py` according to your repo.
 
-# How to update
+## How to update
 
 ```sh
 git stash -- config.py && { {
