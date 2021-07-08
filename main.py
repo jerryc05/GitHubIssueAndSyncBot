@@ -242,8 +242,8 @@ class Issue:
             '--------------\n'
             'Time happened:\n```\n'
             f'UTC:           {dt.isoformat()}\n'
-            f'US/Eastern:    {dt.astimezone(timezone("US/Eastern")).isoformat()}, {setlocale(LC_TIME, "en_US") and dt.astimezone(timezone("US/Eastern")).strftime(r"%a %p %I:%M:%S.%f")}\n'
-            f'Asia/Shanghai: {dt.astimezone(timezone("Asia/Shanghai")).isoformat()}, {setlocale(LC_TIME, "zh_CN") and dt.astimezone(timezone("Asia/Shanghai")).strftime(r"%a %p %I:%M:%S.%f")}\n'
+            f'US/Eastern:    {dt.astimezone(timezone("US/Eastern")).isoformat()}, {setlocale(LC_TIME, "en_US") and dt.astimezone(timezone("US/Eastern")).strftime(r"%A %p %I:%M:%S.%f")}\n'
+            f'Asia/Shanghai: {dt.astimezone(timezone("Asia/Shanghai")).isoformat()}, {setlocale(LC_TIME, "zh_CN") and dt.astimezone(timezone("Asia/Shanghai")).strftime(r"%A %p %I:%M:%S.%f")}\n'
             '```\n')
         setlocale(LC_TIME, loc)
         return body
