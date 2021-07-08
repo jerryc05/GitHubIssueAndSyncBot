@@ -27,7 +27,7 @@ git stash -- config.py && { {
     - The `unix_epoch` field (_optional_) is designed to record when the issue happened. Only set this field when necessary.
       - It is usually better __NOT__ to set this field since it defaults to the time at insertion.
     - __DO NOT__ insert into private row(s), or you will be rejected.
-    - Example:
+    - Example (`shell`):
       ```sh
       # Minimal insert
       sqlite3 ./db.db 'insert into issues(title) values("test title");'
@@ -50,6 +50,8 @@ git stash -- config.py && { {
           -- Tip: Only set this field when necessary --
           1625097600
         );'
+    - Using libraries will be much more convenient than `shell`.
+      - E.g. [Python sqlite3](https://docs.python.org/3/library/sqlite3.html) and [sqlite-jdbc](https://github.com/xerial/sqlite-jdbc).
 
       # Trigger submission
       python3 ./main.py
