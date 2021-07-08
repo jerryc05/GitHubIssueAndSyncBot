@@ -24,8 +24,8 @@ git stash -- config.py && { {
 0.  Insert relevant info into database.
     - Refer to `schema.sql` for info about the `issues` table.
     - Only the `title` row is __REQUIRED__.
-    - The `unix_epoch` field (_optional_) can be used to record when the issue happened.
-    - Leave empty to use the time at insertion.
+    - The `unix_epoch` field (_optional_) is designed to record when the issue happened. Only set this field when necessary.
+      - It is usually better __NOT__ to set this field since it defaults to the time at insertion.
     - __DO NOT__ insert into private row(s), or you will be rejected.
     - Example:
       ```sh
@@ -47,7 +47,7 @@ git stash -- config.py && { {
           --      if you are using GitHub Free --
           "gh_username1;gh_username2",
 
-          -- Tip: Only use this row if necessary --
+          -- Tip: Only set this field when necessary --
           1625097600
         );'
 
