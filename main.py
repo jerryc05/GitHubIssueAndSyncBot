@@ -254,7 +254,7 @@ if __name__ == '__main__':
 
     for issue_ in get_db().execute(
             'select title,body,milestone,labels,assignees,rowid,unix_epoch '
-            f'from {ISSUES_TABLE_NAME} where {ISSUES_SUB_ROW_NAME}!=1'
+            f'from {ISSUES_TABLE_NAME} where {ISSUES_SUB_ROW_NAME}=0'  # todo resend after 3 min timeout
     ).fetchall():
         issue = Issue(
             title=issue_[0],
@@ -267,6 +267,9 @@ if __name__ == '__main__':
             rowid=issue_[5],
             unix_epoch=issue_[6])
 
+        get_db().execute(
+            f'update {ISSUES_TABLE_NAME} set {ISSUES_SUB_ROW_NAME}=? where rowid=?',
+            (-1, issue.rowid))
         for search in t.cast('list[dict[str, object]]',
                              search_open_issue(issue.title)['items']):
             if search['title'] == issue.title:
@@ -275,3 +278,6 @@ if __name__ == '__main__':
         else:
             create_issue(issue.title, issue.body(), issue.milestone,
                          issue.labels, issue.assignees)
+        get_db().execute(f'delete from {ISSUES_TABLE_NAME} where rowid=?',
+                         (issue.rowid, ))
+        print('Submitted!')
