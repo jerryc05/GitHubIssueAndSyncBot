@@ -160,7 +160,7 @@ def send_api(
 
     retry = True
     while True:
-        req = new_sess(jwt=True).request(method, url, json=js)
+        req = new_sess(jwt=True).request(method, url, json=js, timeout=60)
         if retry and req.status_code == 401:
             get_inst_acc_tok(cached=False)
             retry = False
