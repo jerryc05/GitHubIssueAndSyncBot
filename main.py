@@ -36,15 +36,17 @@ def self_check():
             exit(1)
 
     try:
-        global load_pem_private_key, jwt, Session
+        global load_pem_private_key, jwt, Session, timezone
         from cryptography.hazmat.primitives.serialization import load_pem_private_key
         import jwt
         from requests import Session
+        from pytz import timezone
     except ImportError:
         print('Install these packages before running this:\n'
               '1. [cryptography]\n'
               '2. [pyjwt]\n'
-              '3. [requests]')
+              '3. [requests]\n'
+              '4. [pytz]')
         exit(1)
 
 
@@ -152,11 +154,9 @@ def get_inst_acc_tok(cached: bool = True) -> str:
     return token
 
 
-def send_api(
-    method: str,
-    url: str,
-    js: 'dict[str, object]|None' = None
-) -> 'dict[str,object]|list[dict[str,object]]':
+def send_api(method: str,
+             url: str,
+             js: 'dict[str, object]|None' = None) -> 'dict[str,object]':
 
     retry = True
     while True:
@@ -180,10 +180,10 @@ def post_api(url: str, js: 'dict[str, object]'):
 def create_issue(title: 'str|int',
                  body: 'str|None' = None,
                  milestone: 'str|int|None' = None,
-                 labels: 'list[str]' = [],
-                 assignees: 'list[str]' = []):
+                 labels: 'list[str]|None' = None,
+                 assignees: 'list[str]|None' = None):
 
-    labels = list(set(labels + ['bot']))
+    labels = list(set((labels if labels else []) + ['bot']))
     js: 'dict[str, object]' = {'title': title, 'labels': labels}
 
     for val, name in ((body, 'body'), \
@@ -212,11 +212,25 @@ def create_comment(issue_id: int, body: 'str'):
 class Issue:
     rowid: int
     title: str
-    body: 'str|None'
+    _body: 'str|None'
     milestone: 'str|None'
-    labels: 't.Sequence[str]|None'
-    assignees: 't.Sequence[str]|None'
-    unix_epoch: datetime
+    labels: 'list[str]|None'
+    assignees: 'list[str]|None'
+    unix_epoch: int
+
+    def body(self) -> str:
+        body = self._body if self._body else ''
+
+        dt = datetime.fromtimestamp(self.unix_epoch).astimezone()
+        body += (
+            '\n\n'
+            '--------------\n'
+            'Time happened:\n```\n'
+            f'UTC:           {timezone("UTC").localize(dt).isoformat()}\n'
+            f'US/Eastern:    {timezone("US/Eastern").localize(dt).isoformat()}\n'
+            f'Asia/Shanghai: {timezone("Asia/Shanghai").localize(dt).isoformat()}\n'
+            '```\n')
+        return body
 
 
 if __name__ == '__main__':
@@ -226,16 +240,22 @@ if __name__ == '__main__':
             'select title,body,milestone,labels,assignees,rowid,unix_epoch '
             f'from {ISSUES_TABLE_NAME} where {ISSUES_SUB_ROW_NAME}!=1'
     ).fetchall():
-        print(type(issue_[6]))
         issue = Issue(
             title=issue_[0],
-            body=issue_[1],
+            _body=issue_[1],
             milestone=issue_[2],
-            labels=(tuple(x.strip() for x in t.cast(str, issue_[3]).split(';'))
-                    if issue_[3] else None),
-            assignees=(tuple(x.strip()
-                             for x in t.cast(str, issue_[4]).split(';'))
-                       if issue_[4] else None),
+            labels=[x.strip() for x in t.cast(str, issue_[3]).split(';')]
+            if issue_[3] else None,
+            assignees=[x.strip() for x in t.cast(str, issue_[4]).split(';')]
+            if issue_[4] else None,
             rowid=issue_[5],
             unix_epoch=issue_[6])
-        pp(issue)
+
+        for search in t.cast('list[dict[str, object]]',
+                             search_open_issue(issue.title)['items']):
+            if search['title'] == issue.title:
+                create_comment(t.cast(int, search['id']), issue.body())
+                break
+        else:
+            create_issue(issue.title, issue.body(), issue.milestone,
+                         issue.labels, issue.assignees)
