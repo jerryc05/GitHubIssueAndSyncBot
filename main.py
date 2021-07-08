@@ -138,7 +138,7 @@ def get_inst_acc_tok(cached: bool = True) -> str:
                 req.raise_for_status()
                 exp_time = int(
                     datetime.strptime(req.json()['expires_at'],
-                                      '%Y-%m-%dT%H:%M:%SZ').timestamp())
+                                      r'%Y-%m-%dT%H:%M:%SZ').timestamp())
                 token = req.json()['token']
 
                 if get_db().execute( \
@@ -210,26 +210,29 @@ def create_comment(issue_id: int, body: 'str'):
 
 @dataclass
 class Issue:
+    rowid: int
     title: str
     body: 'str|None'
     milestone: 'str|None'
     labels: 'list[str]|None'
     assignees: 'list[str]|None'
-    rowid: int
+    utc_time: datetime
 
 
 if __name__ == '__main__':
     self_check()
 
     for issue_ in get_db().execute(
-            'select title,body,milestone,labels,assignees,rowid '
+            'select title,body,milestone,labels,assignees,rowid,utc_time '
             f'from {ISSUES_TABLE_NAME} where {ISSUES_SUB_ROW_NAME}!=1'
     ).fetchall():
+        print(type(issue_[6]))
         issue = Issue(
             title=issue_[0],
             body=issue_[1],
             milestone=issue_[2],
             labels=t.cast(str, issue_[3]).split(' ') if issue_[3] else None,
             assignees=t.cast(str, issue_[4]).split(' ') if issue_[4] else None,
-            rowid=issue_[5])
+            rowid=issue_[5],
+            utc_time=datetime.strptime(issue_[6], r'%Y-%m-%d %H:%M:%S'))
         pp(issue)

@@ -1,10 +1,11 @@
 -- FOR USER --
 create table if not exists issues (
-  [title]       text  not null,
+  [title]       text      not null,
   [body]        text,
   [milestone]   text,
-  [labels]      text,  -- list separated by [space] --
-  [assignees]   text,  -- list separated by [space] --
+  [labels]      text,  -- list as str separated by [space] --
+  [assignees]   text,  -- list as str separated by [space] --
+  [utc_time]    timestamp default current_timestamp,  -- UTC time when issue happened --
 
   -- DO NOT set private rows when inserting!!! --
 
