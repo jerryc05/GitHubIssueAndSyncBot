@@ -214,16 +214,16 @@ class Issue:
     title: str
     body: 'str|None'
     milestone: 'str|None'
-    labels: 'list[str]|None'
-    assignees: 'list[str]|None'
-    utc_time: datetime
+    labels: 't.Sequence[str]|None'
+    assignees: 't.Sequence[str]|None'
+    unix_epoch: datetime
 
 
 if __name__ == '__main__':
     self_check()
 
     for issue_ in get_db().execute(
-            'select title,body,milestone,labels,assignees,rowid,utc_time '
+            'select title,body,milestone,labels,assignees,rowid,unix_epoch '
             f'from {ISSUES_TABLE_NAME} where {ISSUES_SUB_ROW_NAME}!=1'
     ).fetchall():
         print(type(issue_[6]))
@@ -231,8 +231,11 @@ if __name__ == '__main__':
             title=issue_[0],
             body=issue_[1],
             milestone=issue_[2],
-            labels=t.cast(str, issue_[3]).split(' ') if issue_[3] else None,
-            assignees=t.cast(str, issue_[4]).split(' ') if issue_[4] else None,
+            labels=(tuple(x.strip() for x in t.cast(str, issue_[3]).split(';'))
+                    if issue_[3] else None),
+            assignees=(tuple(x.strip()
+                             for x in t.cast(str, issue_[4]).split(';'))
+                       if issue_[4] else None),
             rowid=issue_[5],
-            utc_time=datetime.strptime(issue_[6], r'%Y-%m-%d %H:%M:%S'))
+            unix_epoch=issue_[6])
         pp(issue)

@@ -1,11 +1,12 @@
 -- FOR USER --
 create table if not exists issues (
-  [title]       text      not null,
+  [title]       text    not null,
   [body]        text,
   [milestone]   text,
-  [labels]      text,  -- list as str separated by [space] --
-  [assignees]   text,  -- list as str separated by [space] --
-  [utc_time]    timestamp default current_timestamp,  -- UTC time when issue happened --
+  [labels]      text,  -- list as str separated by [;] --
+  [assignees]   text,  -- list as str separated by [;] --
+  -- Unix epoch when issue happened --
+  [unix_epoch]    integer default (strftime('%s','now')),
 
   -- DO NOT set private rows when inserting!!! --
 
@@ -43,8 +44,7 @@ create table if not exists acc_auth (
   [token]     text    not null
 );
 
-drop trigger if exists issues_insert_validation_1;
-create trigger if not exists issues_insert_validation_1
+create trigger if not exists issues_insert_validation
   before insert on issues
   when new._sub!=0
 begin
