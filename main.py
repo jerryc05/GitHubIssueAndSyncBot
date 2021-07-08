@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
+from dataclasses import dataclass
 from datetime import datetime
 from math import floor
 from pathlib import Path
 from pprint import pp
 import sqlite3
 import time
+import typing as t
 from urllib.parse import quote_plus
 
 from config import OWNER, REPO, INSTALL_ID, APP_ID, PRIVATE_PEM_PATH
@@ -206,11 +208,28 @@ def create_comment(issue_id: int, body: 'str'):
         {'body': body})
 
 
+@dataclass
+class Issue:
+    title: str
+    body: 'str|None'
+    milestone: 'str|None'
+    labels: 'list[str]|None'
+    assignees: 'list[str]|None'
+    rowid: int
+
+
 if __name__ == '__main__':
     self_check()
 
-    for issue in get_db().execute(
-            'select title,body,milestone,labels,assignees,_sub,_issue_id '
+    for issue_ in get_db().execute(
+            'select title,body,milestone,labels,assignees,rowid '
             f'from {ISSUES_TABLE_NAME} where {ISSUES_SUB_ROW_NAME}!=1'
     ).fetchall():
+        issue = Issue(
+            title=issue_[0],
+            body=issue_[1],
+            milestone=issue_[2],
+            labels=t.cast(str, issue_[3]).split(' ') if issue_[3] else None,
+            assignees=t.cast(str, issue_[4]).split(' ') if issue_[4] else None,
+            rowid=issue_[5])
         pp(issue)
