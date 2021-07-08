@@ -37,7 +37,7 @@ git stash -- config.py && { {
           title,body,labels,assignees,unix_epoch
         ) values(
           "Issue title",
-          "Issue body",
+          "Issue body"||x"0a"||"New line",
           "bug;help wanted;java",
           "gh_username1;gh_username2",
           1625097600
