@@ -37,9 +37,17 @@ git stash -- config.py && { {
           title,body,labels,assignees,unix_epoch
         ) values(
           "Issue title",
-          "Issue body"||x"0a"||"New line",
-          "bug;help wanted;java",
+
+          -- Tip: char(10) represents a "\n" --
+          "Issue body!"||char(10)||"This is a new line!",
+
+          "bug;help wanted",
+
+          -- Tip: Only the first assignee will be assigned --
+          --      if you are using GitHub Free --
           "gh_username1;gh_username2",
+
+          -- Tip: Only use this row if necessary --
           1625097600
         );'
 
