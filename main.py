@@ -72,23 +72,25 @@ def get_jwt(cached: bool = True) -> str:
                 cached = False
             else:
                 exp_time, token = get_db().execute(
-                    f'select exp_time,token from {JWT_TABLE_NAME}').fetchone()
+                    f'select exp_time,token from {JWT_TABLE_NAME} limit 1').fetchone()
                 cached = time.time() < exp_time and not not token
 
     if not cached:
         print('Regenerating JWT token!')
         dur = 60
         exp_time = floor(time.time()) + dur
-        token: str = jwt.encode(
-            {
-                # issued at time, 60 seconds in the past to allow for clock drift
-                'iat': exp_time - dur - 60,
-                # JWT expiration time (10 minute maximum)
-                'exp': exp_time,
-                # GitHub App's identifier
-                'iss': APP_ID},
-            load_pem_private_key(open(PRIVATE_PEM_PATH, 'rb').read(), None),
-            algorithm='RS256')
+        token = str(
+            jwt.encode(
+                {
+                    # issued at time, 60 seconds in the past to allow for clock drift
+                    'iat': exp_time - dur - 60,
+                    # JWT expiration time (10 minute maximum)
+                    'exp': exp_time,
+                    # GitHub App's identifier
+                    'iss': APP_ID},
+                load_pem_private_key(
+                    open(PRIVATE_PEM_PATH, 'rb').read(), None),
+                algorithm='RS256'))
 
         if get_db().execute(
                 f'select 1 from {JWT_TABLE_NAME} limit 1').fetchone()[0]:
@@ -125,7 +127,7 @@ def get_inst_acc_tok(cached: bool = True) -> str:
                 cached = False
             else:
                 exp_time, token = get_db().execute(
-                    f'select exp_time,token from {ACC_TABLE_NAME}').fetchone()
+                    f'select exp_time,token from {ACC_TABLE_NAME} limit 1').fetchone()
                 cached = time.time() < exp_time and not not token
 
     if not cached:
