@@ -23,6 +23,8 @@ ACC_TABLE_NAME = 'acc_auth'
 ISSUES_TABLE_NAME = 'issues'
 ISSUES_SUB_ROW_NAME = '_sub'
 
+TIME_FMT = r'%Y-%m-%d %H:%M:%S %Z%z, %A'
+
 
 def self_check():
     if not Path(PRIVATE_PEM_PATH).exists():
@@ -244,11 +246,14 @@ class Issue:
         body += (
             '\n\n'
             '--------------\n'
-            'Time happened:\n```\n'
-            f'UTC:           {dt.isoformat()}\n'
-            f'US/Eastern:    {dt.astimezone(timezone("US/Eastern")).isoformat()}, {setlocale(LC_TIME, "en_US") and dt.astimezone(timezone("US/Eastern")).strftime(r"%A %p %I:%M:%S")}\n'
-            f'Asia/Shanghai: {dt.astimezone(timezone("Asia/Shanghai")).isoformat()}, {setlocale(LC_TIME, "zh_CN") and dt.astimezone(timezone("Asia/Shanghai")).strftime(r"%A %p %I:%M:%S")}\n'
-            '```\n')
+            '<details>'
+            '<summary>Time happened:</summary>\n'
+            '```\n'
+            f'UTC:           {dt.strftime(TIME_FMT)}\n'
+            f'US/Eastern:    {setlocale(LC_TIME, "en_US") and dt.astimezone(timezone("US/Eastern")).strftime(TIME_FMT)}\n'
+            f'Asia/Shanghai: {setlocale(LC_TIME, "zh_CN") and dt.astimezone(timezone("Asia/Shanghai")).strftime(TIME_FMT)}\n'
+            '```\n'
+            '</details>\n')
         setlocale(LC_TIME, loc)
         return body
 
