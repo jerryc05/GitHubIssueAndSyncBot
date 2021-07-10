@@ -3,7 +3,7 @@
 ## First time setup
 
 0.  ```sh
-    git clone --depth 1 https://github.com/jerryc05/GitHubIssueReportBot.git
+    git clone --depth 1 --single-branch https://github.com/jerryc05/GitHubIssueReportBot.git
     ```
 
 0.  Edit `config.py` according to your repo.
@@ -13,7 +13,7 @@
 ```sh
 git stash -- config.py && { {
     git fetch --depth 1 &&
-    git reset --hard origin;
+    git reset --hard FETCH_HEAD;
   };
   git stash pop;
 }
