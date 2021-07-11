@@ -3,8 +3,8 @@ create table if not exists issues (
   [title]       text    not null,
   [body]        text,
   [milestone]   text,
-  [labels]      text,  -- list as str separated by [;] --
-  [assignees]   text,  -- list as str separated by [;] --
+  [labels]      text,  -- actually list of str --
+  [assignees]   text,  -- actually list of str --
   -- Unix epoch when issue happened --
   [unix_epoch]    integer default (strftime('%s','now')),
 

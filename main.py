@@ -269,9 +269,9 @@ if __name__ == '__main__':
             title=issue_[0],
             _body=issue_[1],
             milestone=issue_[2],
-            labels=[x.strip() for x in t.cast(str, issue_[3]).split(';')]
+            labels=[x.strip() for x in t.cast(str, issue_[3]).split('\n')]
             if issue_[3] else None,
-            assignees=[x.strip() for x in t.cast(str, issue_[4]).split(';')]
+            assignees=[x.strip() for x in t.cast(str, issue_[4]).split('\n')]
             if issue_[4] else None,
             rowid=issue_[5],
             unix_epoch=issue_[6])

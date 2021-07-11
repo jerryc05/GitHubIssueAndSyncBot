@@ -41,11 +41,11 @@ git stash -- config.py && { {
           -- Tip: char(10) represents a "\n" --
           "Issue body!"||char(10)||"This is a new line!",
 
-          "bug;help wanted",
+          "bug"||char(10)||"help wanted",
 
           -- Tip: Only the first assignee will be assigned --
           --      if you are using GitHub Free --
-          "gh_username1;gh_username2",
+          "gh_username1"||char(10)||"gh_username2",
 
           -- Tip: Only set this field when necessary --
           1625097600
