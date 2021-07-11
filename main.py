@@ -7,15 +7,16 @@ from math import floor
 from pathlib import Path
 from pprint import pp
 import sqlite3
+import sys
 import time
 import typing as t
 from urllib.parse import quote_plus
 
 from config import OWNER, REPO, INSTALL_ID, APP_ID, PRIVATE_PEM_PATH
 
-CONFIG_FILENAME = 'config.py'
-DB_FILENAME = 'db.db'
-DB_SCHEMA_FILENAME = 'schema.sql'
+CONFIG_PATH = Path(__file__).parent / 'config.py'
+DB_PATH = Path(__file__).parent / 'db.db'
+DB_SCHEMA_PATH = Path(__file__).parent / 'schema.sql'
 
 JWT_TABLE_NAME = 'jwt_auth'
 ACC_TABLE_NAME = 'acc_auth'
@@ -35,7 +36,7 @@ def self_check():
                       (INSTALL_ID, 'INSTALL_ID'), \
                       (APP_ID, 'APP_ID')):
         if not val:
-            print(f'{name} not set in {CONFIG_FILENAME}!')
+            print(f'{name} not set in {CONFIG_PATH}!')
             exit(1)
 
     try:
@@ -56,13 +57,13 @@ def self_check():
 def get_db():
     global db
     if 'db' not in globals():
-        db = sqlite3.connect(DB_FILENAME, isolation_level=None)
-        db.executescript(open(DB_SCHEMA_FILENAME).read())
+        db = sqlite3.connect(DB_PATH, isolation_level=None)
+        db.executescript(open(DB_SCHEMA_PATH).read())
     return db
 
 
 def get_jwt(cached: bool = True) -> str:
-    db_f = Path(__file__).parent / DB_FILENAME
+    db_f = Path(__file__).parent / DB_PATH
     token = ''
 
     if cached:
@@ -74,7 +75,8 @@ def get_jwt(cached: bool = True) -> str:
                 cached = False
             else:
                 exp_time, token = get_db().execute(
-                    f'select exp_time,token from {JWT_TABLE_NAME} limit 1').fetchone()
+                    f'select exp_time,token from {JWT_TABLE_NAME} limit 1'
+                ).fetchone()
                 cached = time.time() < exp_time and not not token
 
     if not cached:
@@ -116,7 +118,7 @@ def new_sess(jwt: bool = False, acc_tok: bool = False):
 
 
 def get_inst_acc_tok(cached: bool = True) -> str:
-    db_f = Path(__file__).parent / DB_FILENAME
+    db_f = Path(__file__).parent / DB_PATH
     retry = True
     token = ''
 
@@ -129,7 +131,8 @@ def get_inst_acc_tok(cached: bool = True) -> str:
                 cached = False
             else:
                 exp_time, token = get_db().execute(
-                    f'select exp_time,token from {ACC_TABLE_NAME} limit 1').fetchone()
+                    f'select exp_time,token from {ACC_TABLE_NAME} limit 1'
+                ).fetchone()
                 cached = time.time() < exp_time and not not token
 
     if not cached:
@@ -260,6 +263,10 @@ class Issue:
 
 if __name__ == '__main__':
     self_check()
+
+    if '-c' in sys.argv or '--create' in sys.argv:
+        get_db()
+        exit()
 
     for issue_ in get_db().execute(
             'select title,body,milestone,labels,assignees,rowid,unix_epoch '
