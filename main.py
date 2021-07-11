@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from dataclasses import dataclass
 from datetime import datetime
 from locale import LC_TIME, getlocale, setlocale
 from math import floor
@@ -26,9 +25,15 @@ ISSUES_SUB_ROW_NAME = '_sub'
 
 TIME_FMT = r'%Y-%m-%d %H:%M:%S %Z%z, %A'
 
+private_pem_path = Path(PRIVATE_PEM_PATH)
+
 
 def self_check():
-    if not Path(PRIVATE_PEM_PATH).exists():
+    global private_pem_path
+    if not private_pem_path.exists() and not private_pem_path.is_absolute():
+        private_pem_path = Path(__file__).parent / PRIVATE_PEM_PATH
+
+    if not private_pem_path.exists():
         raise FileNotFoundError(
             f'PRIVATE_PEM_PATH=[{PRIVATE_PEM_PATH}] not found!')
     for val, name in ((OWNER, 'OWNER'), \
@@ -93,7 +98,7 @@ def get_jwt(cached: bool = True) -> str:
                     # GitHub App's identifier
                     'iss': APP_ID},
                 load_pem_private_key(
-                    open(PRIVATE_PEM_PATH, 'rb').read(), None),
+                    open(private_pem_path, 'rb').read(), None),
                 algorithm='RS256'))
 
         if get_db().execute(
@@ -231,15 +236,18 @@ def create_comment(issue_id: int, body: 'str'):
         {'body': body})
 
 
-@dataclass
 class Issue:
-    rowid: int
-    title: str
-    _body: 'str|None'
-    milestone: 'str|None'
-    labels: 'list[str]|None'
-    assignees: 'list[str]|None'
-    unix_epoch: int
+
+    def __init__(self, rowid: int, title: str, body: 'str|None',
+                 milestone: 'str|None', labels: 'list[str]|None',
+                 assignees: 'list[str]|None', unix_epoch: int) -> None:
+        self.rowid = rowid
+        self.title = title
+        self._body = body
+        self.milestone = milestone
+        self.labels = labels
+        self.assignees = assignees
+        self.unix_epoch = unix_epoch
 
     def body(self) -> str:
         body = self._body if self._body else ''
@@ -274,7 +282,7 @@ if __name__ == '__main__':
     ).fetchall():
         issue = Issue(
             title=issue_[0],
-            _body=issue_[1],
+            body=issue_[1],
             milestone=issue_[2],
             labels=[x.strip() for x in t.cast(str, issue_[3]).split('\n')]
             if issue_[3] else None,
