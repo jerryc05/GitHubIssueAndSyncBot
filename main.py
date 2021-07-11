@@ -59,11 +59,15 @@ def self_check():
         exit(1)
 
 
+def init_db():
+    global db
+    db = sqlite3.connect(DB_PATH, isolation_level=None)
+    db.executescript(open(DB_SCHEMA_PATH).read())
+
+
 def get_db():
     global db
-    if 'db' not in globals():
-        db = sqlite3.connect(DB_PATH, isolation_level=None)
-        db.executescript(open(DB_SCHEMA_PATH).read())
+    init_db()
     return db
 
 
@@ -273,7 +277,7 @@ if __name__ == '__main__':
     self_check()
 
     if '-c' in sys.argv or '--create' in sys.argv:
-        get_db()
+        init_db()
         exit()
 
     for issue_ in get_db().execute(
