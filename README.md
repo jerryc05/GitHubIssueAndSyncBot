@@ -11,8 +11,7 @@
 ## How to update
 
 ```sh
-git fetch --depth 1 &&
-git reset --hard FETCH_HEAD;
+git pull --depth 1
 pip install -U -r requirements.txt
 ```
 
