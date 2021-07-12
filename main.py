@@ -57,11 +57,7 @@ def self_check():
         from requests import Session
         from pytz import timezone, utc
     except ImportError:
-        print('Install these packages before running this:\n'
-              '1. cryptography\n'
-              '2. pyjwt\n'
-              '3. requests\n'
-              '4. pytz')
+        print('Some packages missing! Install packages according to [requirements.txt] and restart!')
         exit(1)
 
 

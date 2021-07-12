@@ -13,6 +13,7 @@
 ```sh
 git fetch --depth 1 &&
 git reset --hard FETCH_HEAD;
+pip install -U -r requirements.txt
 ```
 
 ## How to use
