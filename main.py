@@ -3,6 +3,7 @@
 from datetime import datetime
 from locale import LC_TIME, getlocale, setlocale
 from math import floor
+from os import environ
 from pathlib import Path
 from pprint import pp
 import sqlite3
@@ -11,9 +12,12 @@ import time
 import typing as t
 from urllib.parse import quote_plus
 
-from config import OWNER, REPO, INSTALL_ID, APP_ID, PRIVATE_PEM_PATH
+OWNER = environ.get('OWNER', '').strip()
+REPO = environ.get('REPO', '').strip()
+INSTALL_ID = int(environ.get('INSTALL_ID', '0'))
+APP_ID = int(environ.get('APP_ID', '0'))
+PRIVATE_PEM_PATH = environ.get('PRIVATE_PEM_PATH', '').strip()
 
-CONFIG_PATH = Path(__file__).parent / 'config.py'
 DB_PATH = Path(__file__).parent / 'db.db'
 DB_SCHEMA_PATH = Path(__file__).parent / 'schema.sql'
 
@@ -29,20 +33,22 @@ private_pem_path = Path(PRIVATE_PEM_PATH)
 
 
 def self_check():
-    global private_pem_path
-    if not private_pem_path.exists() and not private_pem_path.is_absolute():
-        private_pem_path = Path(__file__).parent / PRIVATE_PEM_PATH
-
-    if not private_pem_path.exists():
-        raise FileNotFoundError(
-            f'PRIVATE_PEM_PATH=[{PRIVATE_PEM_PATH}] not found!')
     for val, name in ((OWNER, 'OWNER'), \
                       (REPO, 'REPO'), \
                       (INSTALL_ID, 'INSTALL_ID'), \
-                      (APP_ID, 'APP_ID')):
+                      (APP_ID, 'APP_ID'), \
+                      (PRIVATE_PEM_PATH, 'PRIVATE_PEM_PATH')):
         if not val:
-            print(f'{name} not set in {CONFIG_PATH}!')
+            print(f'{name} not set in env var!')
             exit(1)
+
+    global private_pem_path
+    if not private_pem_path.is_file() and not private_pem_path.is_absolute():
+        private_pem_path = Path(__file__).parent / PRIVATE_PEM_PATH
+
+    if not private_pem_path.is_file():
+        raise FileNotFoundError(
+            f'PRIVATE_PEM_PATH=[{PRIVATE_PEM_PATH}] not found!')
 
     try:
         global load_pem_private_key, jwt, Session, timezone, utc

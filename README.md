@@ -53,4 +53,16 @@ git stash -- config.py && { {
     - Using libraries will be much more convenient than `shell`.
       - E.g. [Python sqlite3](https://docs.python.org/3/library/sqlite3.html) and [sqlite-jdbc](https://github.com/xerial/sqlite-jdbc).
 
-0.  Run `main.py` normally, __DO NOT__ forget to check for exit status.
+0.  Run `main.py` like this (__DO NOT__ forget to check for exit status):
+    ```sh
+    # FOR USER #
+    export OWNER=''
+    export REPO=''
+    export INSTALL_ID=0  # Copy from settings/installations
+
+    # FOR DEVELOPER #
+    export APP_ID=0
+    export PRIVATE_PEM_PATH=''
+
+    ./main.py
+    ```
