@@ -11,12 +11,8 @@
 ## How to update
 
 ```sh
-git stash -- config.py && { {
-    git fetch --depth 1 &&
-    git reset --hard FETCH_HEAD;
-  };
-  git stash pop;
-}
+git fetch --depth 1 &&
+git reset --hard FETCH_HEAD;
 ```
 
 ## How to use
