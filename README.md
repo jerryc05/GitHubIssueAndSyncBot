@@ -19,7 +19,7 @@ git reset --hard FETCH_HEAD
 pip install -U -r requirements.txt
 ```
 
-## How to use (main script)
+## How to use (terminal)
 
 0.  Insert relevant info into database.
     - Refer to `schema.sql` for info about the `issues` table.
@@ -68,6 +68,9 @@ pip install -U -r requirements.txt
     ```
 
 ## How to use (Java interface)
+
+### How to start
+
 ```sh
 # FOR JAVA INTERFACE #
 export SCRIPT_PATH="/path/to/bot/main.py"
@@ -84,4 +87,25 @@ export PRIVATE_PEM_PATH=''
 
 # start normally in any way you want
 mvn exec:java ...  # Or [java -jar xxx.jar ...]
+```
+
+### How to use
+
+```java
+// Do self check during app start-up is a good idea
+IssueReport.selfCheck();
+
+// If you have an exception to report
+try {
+  // balabala
+} except (Exception e) {
+  new IssueReport(e, "Other notes here like how this happened ...")
+    .appendBody("You can add another line in body here ...")
+    .withMilestone("name_of_milestone")  // Add milestone if you wish
+    .withLabels(List.of("bug", "java"))  // Add labels here
+    // Tip: Only the first assignee will be assigned if you are using GitHub free
+    .withAssignees(List.of("github_userid_1","github_userid_2"))
+    .withUnixEpoch()  // Use empty argument for "now"
+    .submit()  // Don't forget to submit
+}
 ```

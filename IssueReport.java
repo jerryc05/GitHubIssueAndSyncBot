@@ -170,7 +170,7 @@ public class IssueReport {
   }
 
   public IssueReport appendBody(String body) {
-    this.body = Optional.ofNullable(this.body).orElse("") + body;
+    this.body = String.format("%s\n%s", Optional.ofNullable(this.body).orElse(""), body);
     return this;
   }
 
