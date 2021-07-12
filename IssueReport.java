@@ -35,6 +35,7 @@ public class IssueReport {
   static final String SCRIPT_NOT_FOUND_FMT = "Sqlite uri [%s] not found!";
   static final String INVALID_UNIX_EPOCH_FMT = "Invalud unix epoch [%s]!";
   static final String PY_NOT_FOUND_FMT = "Neither [python3] nor [python] is found!";
+  static final String SCRIPT_SELF_CHECK_FAILED_FMT = "Bot script self check failed!";
 
   static final ThreadPoolExecutor tpe = new ThreadPoolExecutor(4, Integer.MAX_VALUE, 30, TimeUnit.MINUTES,
       new LinkedTransferQueue<>(), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -85,20 +86,26 @@ public class IssueReport {
           } catch (IOException e2) {//
           }
         }
+
+        if (mPyProcess == null) {
+          throw new IllegalStateException(PY_NOT_FOUND_FMT);
+        } else {
+          mPyProcess = mPyProcess.inheritIO();
+          try {
+            mPyProcess.command().add(mScriptFile.getCanonicalPath());
+
+            ProcessBuilder selfCheck = new ProcessBuilder(mPyProcess.command());
+            selfCheck.command().add("-c");
+
+            if (selfCheck.start().waitFor() != 0)
+              throw new IllegalStateException(SCRIPT_SELF_CHECK_FAILED_FMT);
+          } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("This exception shall never happen!");
+          }
+        }
       } catch (InterruptedException e) {
         throw new IllegalStateException(e);
-      }
-
-      if (mPyProcess == null) {
-        throw new IllegalStateException(PY_NOT_FOUND_FMT);
-      } else {
-        mPyProcess = mPyProcess.inheritIO();
-        try {
-          mPyProcess.command().add(mScriptFile.getCanonicalPath());
-        } catch (IOException e) {
-          e.printStackTrace();
-          System.err.println("This exception shall never happen!");
-        }
       }
     }
   }
