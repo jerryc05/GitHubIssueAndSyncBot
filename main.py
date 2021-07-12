@@ -314,7 +314,9 @@ def check_and_submit():
 if __name__ == '__main__':
     self_check()
 
-    if '-c' in sys.argv or '--create' in sys.argv:
+    if '-i' in sys.argv or '--init' in sys.argv:
         init_db()
+    elif '-c' in sys.argv or '--check' in sys.argv:
+        self_check()
     else:
         check_and_submit()
