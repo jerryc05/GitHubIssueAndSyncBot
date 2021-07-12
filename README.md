@@ -14,7 +14,7 @@
 # If you want to save any file, use
 # `git stash -- FILENAME` and then pop it after reset
 git fetch --depth 1 &&
-git reset --hard FETCH_HEAD;
+git reset --hard FETCH_HEAD
 
 pip install -U -r requirements.txt
 ```
