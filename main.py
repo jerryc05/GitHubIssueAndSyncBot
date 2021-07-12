@@ -273,13 +273,7 @@ class Issue:
         return body
 
 
-if __name__ == '__main__':
-    self_check()
-
-    if '-c' in sys.argv or '--create' in sys.argv:
-        init_db()
-        exit()
-
+def check_and_submit():
     for issue_ in get_db().execute(
             'select title,body,milestone,labels,assignees,rowid,unix_epoch '
             f'from {ISSUES_TABLE_NAME} where {ISSUES_SUB_ROW_NAME}=0'  # todo resend after 3 min timeout
@@ -309,3 +303,12 @@ if __name__ == '__main__':
         get_db().execute(f'delete from {ISSUES_TABLE_NAME} where rowid=?',
                          (issue.rowid, ))
         print('Submitted!')
+
+
+if __name__ == '__main__':
+    self_check()
+
+    if '-c' in sys.argv or '--create' in sys.argv:
+        init_db()
+    else:
+        check_and_submit()
