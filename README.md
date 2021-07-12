@@ -107,7 +107,8 @@ try {
 ir = new IssueReport("Issue title")
 
 // Submit this issue
-ir.appendBody("You can add other lines in body here ...")
+ir.appendBody("You can add lines in body here ...")
+  .appendBody("You can add more lines in body here ...")
   .withMilestone("name_of_milestone")  // Add milestone if you wish
   .withLabels(List.of("bug", "java"))  // Add labels here
   // Only the first assignee will be assigned if you are using GitHub free
