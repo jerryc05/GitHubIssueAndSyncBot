@@ -16,6 +16,15 @@ import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * ## How to start
+ *
+ * ```sh
+ * export SCRIPT_PATH="/path/to/bot/main.py"
+ * export SQLITE_PATH="/path/to/bot/db.db"
+ * # start normally like [java -jar xxx.jar]
+ * ```
+ */
 public class IssueReport {
   static final String SCRIPT_PATH_ENV_NAME = "SCRIPT_PATH";
   static final String SQLITE_PATH_ENV_NAME = "SQLITE_PATH";
