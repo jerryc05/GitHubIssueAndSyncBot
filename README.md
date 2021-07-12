@@ -16,7 +16,7 @@ git reset --hard FETCH_HEAD;
 pip install -U -r requirements.txt
 ```
 
-## How to use
+## How to use (main script)
 
 0.  Insert relevant info into database.
     - Refer to `schema.sql` for info about the `issues` table.
@@ -63,3 +63,22 @@ pip install -U -r requirements.txt
 
     ./main.py
     ```
+
+## How to use (Java interface)
+```sh
+# FOR JAVA INTERFACE #
+export SCRIPT_PATH="/path/to/bot/main.py"
+export SQLITE_PATH="/path/to/bot/db.db"
+
+# FOR USER #
+export OWNER=''
+export REPO=''
+export INSTALL_ID=0  # Copy from settings/installations
+
+# FOR DEVELOPER #
+export APP_ID=0
+export PRIVATE_PEM_PATH=''
+
+# start normally in any way you want
+mvn exec:java ...  # Or [java -jar xxx.jar ...]
+```
