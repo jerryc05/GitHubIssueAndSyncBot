@@ -154,23 +154,23 @@ public class IssueReport {
 
   public IssueReport(String title) {
     this.title = title;
+    withUnixEpoch();
   }
 
-  public IssueReport(Throwable exception, CharSequence bodyNotes) {
+  public IssueReport(Throwable exception) {
     exception = Optional.ofNullable(exception).orElse(new Exception());
-    bodyNotes = Optional.ofNullable(bodyNotes).orElse("");
 
     StringWriter sw = new StringWriter();
     exception.printStackTrace(new PrintWriter(sw));
 
-    this.title = exception.getClass().getName();
-    this.body = String.format("<details><summary>Stacktrace:</summary>\n```\n%s```\n</details>\n\n%s", sw.toString(),
-        bodyNotes);
+    title = exception.getClass().getName();
+    appendBody(String.format("<details><summary>Stacktrace:</summary>\n```\n%s```\n</details>\n\n", sw.toString()));
+    withUnixEpoch();
 
   }
 
   public IssueReport appendBody(String body) {
-    this.body = String.format("%s\n%s", Optional.ofNullable(this.body).orElse(""), body);
+    this.body = String.format("%s%s\n", Optional.ofNullable(this.body).orElse(""), body);
     return this;
   }
 

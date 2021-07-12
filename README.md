@@ -95,29 +95,24 @@ IssueReport.selfCheck();
 ```
 
 ```java
+IssueReport ir;
 // If you have an exception to report
 try {
   // balabala
 } except (Exception e) {
-  new IssueReport(e, "Other notes here like how this happened ...")
-    .appendBody("You can add another line in body here ...")
-    .withMilestone("name_of_milestone")  // Add milestone if you wish
-    .withLabels(List.of("bug", "java"))  // Add labels here
-    // Tip: Only the first assignee will be assigned if you are using GitHub free
-    .withAssignees(List.of("github_userid_1","github_userid_2"))
-    .withUnixEpoch()  // Use empty argument for "now"
-    .submit()  // Don't forget to submit
+  ir = new IssueReport(e)
 }
-```
 
-```java
 // If you only have a message to report
-new IssueReport("Issue title", "Issue body ...")
-  .appendBody("You can add another line in body here ...")
+ir = new IssueReport("Issue title")
+
+// Submit this issue
+ir.appendBody("You can add other lines in body here ...")
   .withMilestone("name_of_milestone")  // Add milestone if you wish
   .withLabels(List.of("bug", "java"))  // Add labels here
-  // Tip: Only the first assignee will be assigned if you are using GitHub free
+  // Only the first assignee will be assigned if you are using GitHub free
   .withAssignees(List.of("github_userid_1","github_userid_2"))
-  .withUnixEpoch()  // Use empty argument for "now"
+  // Usually you don't need this unless you want to log another timestamp
+  .withUnixEpoch(unixEpoch)
   .submit()  // Don't forget to submit
 ```
