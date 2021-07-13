@@ -96,6 +96,7 @@ IssueReport.selfCheck();
 
 ```java
 IssueReport ir;
+
 // If you have an exception to report
 try {
   // balabala

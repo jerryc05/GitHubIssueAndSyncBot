@@ -16,7 +16,7 @@ import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class IssueReport {
+public class IssueReport implements AutoCloseable {
   static final String SCRIPT_PATH_ENV_NAME = "SCRIPT_PATH";
   static final String SQLITE_PATH_ENV_NAME = "SQLITE_PATH";
   static final String ISSUES_TABLE_NAME = "issues";
@@ -38,6 +38,7 @@ public class IssueReport {
   String title, body, milestone;
   List<CharSequence> labels, assignees;
   long unixEpoch;
+  boolean submitted;
 
   public static void selfCheck() throws SQLException {
     if (mConn == null) {
@@ -74,7 +75,7 @@ public class IssueReport {
           try {
             if (new ProcessBuilder("python", "--version").start().waitFor() == 0)
               mPyProcess = new ProcessBuilder("python");
-          } catch (IOException e2) {//
+          } catch (IOException e2) { //
           }
         }
 
@@ -91,8 +92,7 @@ public class IssueReport {
             if (selfCheck.start().waitFor() != 0)
               throw new IllegalStateException(SCRIPT_SELF_CHECK_FAILED_FMT);
           } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("This exception shall never happen!");
+            throw new IllegalStateException("This shall never happen!", e);
           }
         }
       } catch (InterruptedException e) {
@@ -101,18 +101,7 @@ public class IssueReport {
     }
   }
 
-  public void submit() {
-    // self check
-    {
-      try {
-        selfCheck();
-      } catch (Exception e) {
-        e.printStackTrace();
-        if (e instanceof SQLException)
-          System.err.println("If the error message is \"out of memory\", it probably means no database file is found!");
-      }
-    }
-
+  private void submitUnchecked() {
     tpe.execute(() -> {
       // validate input
       String labelsStr, assigneesStr;
@@ -150,6 +139,39 @@ public class IssueReport {
         e.printStackTrace();
       }
     });
+  }
+
+  public void submit() {
+    if (!submitted) {
+      try {
+        selfCheck();
+      } catch (Exception e) {
+        e.printStackTrace();
+        if (e instanceof SQLException)
+          System.err.println("If the error message is \"out of memory\", it probably means no database file is found!");
+      }
+
+      submitUnchecked();
+      submitted = true;
+
+    } else {
+      throw new IllegalStateException("Issue already submitted!");
+    }
+  }
+
+  public void close() {
+    try {
+      submit();
+    } catch (IllegalStateException e) { //
+    }
+  }
+
+  protected void finalize() throws Throwable {
+    try {
+      submit();
+    } catch (IllegalStateException e) { //
+    }
+    super.finalize();
   }
 
   public IssueReport(String title) {
