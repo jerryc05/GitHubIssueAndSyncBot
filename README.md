@@ -93,7 +93,40 @@ mvn exec:java ...  # Or [java -jar xxx.jar ...]
 // Do self check during app start-up is a good idea
 IssueReport.selfCheck();
 ```
+NEW way:
+```java
+// If you have an exception to report
+try {
+  // balabala
+} except (Exception e) {
+  try (IssueReport ir = new IssueReport(e)) {
+    ir.appendBody("You can add lines in body here ...")
+      .appendBody("You can add more lines in body here ...")
+      .withMilestone("name_of_milestone")  // Add milestone if you wish
+      .withLabels(List.of("bug", "java"))  // Add labels here
+      // Only the first assignee will be assigned if you are using GitHub free
+      .withAssignees(List.of("github_userid_1","github_userid_2"))
+      // Usually you don't need this unless you want to log another timestamp
+      .withUnixEpoch(unixEpoch)
+      // `ir` will be automatically submitted after this try block
+  }
+}
 
+// If you only have a message to report
+try (IssueReport ir = new IssueReport("Issue title")) {
+  ir.appendBody("You can add lines in body here ...")
+    .appendBody("You can add more lines in body here ...")
+    .withMilestone("name_of_milestone")  // Add milestone if you wish
+    .withLabels(List.of("bug", "java"))  // Add labels here
+    // Only the first assignee will be assigned if you are using GitHub free
+    .withAssignees(List.of("github_userid_1","github_userid_2"))
+    // Usually you don't need this unless you want to log another timestamp
+    .withUnixEpoch(unixEpoch)
+    // `ir` will be automatically submitted after this try block
+}
+```
+
+OLD way:
 ```java
 IssueReport ir;
 
