@@ -111,7 +111,9 @@ try {
       // `ir` will be automatically submitted after this try block
   }
 }
+```
 
+```java
 // If you only have a message to report
 try (IssueReport ir = new IssueReport("Issue title")) {
   ir.appendBody("You can add lines in body here ...")
