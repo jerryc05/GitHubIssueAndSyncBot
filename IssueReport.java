@@ -187,9 +187,8 @@ public class IssueReport implements AutoCloseable {
     exception.printStackTrace(new PrintWriter(sw));
 
     title = exception.getClass().getName();
-    appendBody(String.format("<details><summary>Stacktrace:</summary>\n```\n%s```\n</details>\n\n", sw.toString()));
+    appendBody(String.format("Stacktrace:\n```\n%s```\n\n", sw.toString()));
     withUnixEpoch();
-
   }
 
   public IssueReport appendBody(String body) {
