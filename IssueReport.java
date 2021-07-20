@@ -86,7 +86,8 @@ public class IssueReport implements AutoCloseable {
           try {
             mPyProcess.command().add(mScriptFile.getCanonicalPath());
 
-            ProcessBuilder selfCheck = new ProcessBuilder(mPyProcess.command());
+            ProcessBuilder selfCheck = new ProcessBuilder().inheritIO();
+            selfCheck.command().addAll(mPyProcess.command());
             selfCheck.command().add("-c");
 
             if (selfCheck.start().waitFor() != 0)
