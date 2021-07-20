@@ -82,7 +82,7 @@ def get_jwt(cached: bool = True) -> str:
             cached = False
         else:
             if not get_db().execute(
-                    f'select 1 from {JWT_TABLE_NAME} limit 1').fetchone()[0]:
+                    f'select 1 from {JWT_TABLE_NAME} limit 1').fetchone():
                 cached = False
             else:
                 exp_time, token = get_db().execute(
@@ -108,7 +108,7 @@ def get_jwt(cached: bool = True) -> str:
                 algorithm='RS256'))
 
         if get_db().execute(
-                f'select 1 from {JWT_TABLE_NAME} limit 1').fetchone()[0]:
+                f'select 1 from {JWT_TABLE_NAME} limit 1').fetchone():
             get_db().execute(f'delete from {JWT_TABLE_NAME}')
         get_db().execute(
             f'insert into {JWT_TABLE_NAME}(exp_time,token) values(?,?)',
@@ -138,7 +138,7 @@ def get_inst_acc_tok(cached: bool = True) -> str:
             cached = False
         else:
             if not get_db().execute(
-                    f'select 1 from {ACC_TABLE_NAME} limit 1').fetchone()[0]:
+                    f'select 1 from {ACC_TABLE_NAME} limit 1').fetchone():
                 cached = False
             else:
                 exp_time, token = get_db().execute(
@@ -166,7 +166,7 @@ def get_inst_acc_tok(cached: bool = True) -> str:
                 token = req.json()['token']
 
                 if get_db().execute( \
-                        f'select 1 from {ACC_TABLE_NAME} limit 1').fetchone()[0]:
+                        f'select 1 from {ACC_TABLE_NAME} limit 1').fetchone():
                     get_db().execute(f'delete from {ACC_TABLE_NAME}')
                 get_db().execute(
                     f'insert into {ACC_TABLE_NAME}(exp_time,token) values(?,?)',
