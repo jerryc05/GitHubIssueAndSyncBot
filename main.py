@@ -262,7 +262,7 @@ class Issue:
         loc = getlocale(LC_TIME)
         body += (
             '\n\n'
-            '--------------\n'
+            '---\n'
             'Time happened:\n'
             '|Timezone|Time|\n'
             '|-:|:-|\n'
