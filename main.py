@@ -264,11 +264,12 @@ class Issue:
             '\n\n'
             '--------------\n'
             'Time happened:\n'
-            '```\n'
-            f'UTC:           {dt.strftime(TIME_FMT)}\n'
-            f'US/Eastern:    {setlocale(LC_TIME, "en_US") and dt.astimezone(timezone("US/Eastern")).strftime(TIME_FMT)}\n'
-            f'Asia/Shanghai: {setlocale(LC_TIME, "zh_CN") and dt.astimezone(timezone("Asia/Shanghai")).strftime(TIME_FMT)}\n'
-            '```\n')
+            '|Timezone|Time|\n'
+            '|-:|:-|\n'
+            f'|UTC|`{dt.strftime(TIME_FMT)}`|\n'
+            f'|US/Eastern|`{setlocale(LC_TIME, "en_US") and dt.astimezone(timezone("US/Eastern")).strftime(TIME_FMT)}`|\n'
+            f'|Asia/Shanghai|`{setlocale(LC_TIME, "zh_CN") and dt.astimezone(timezone("Asia/Shanghai")).strftime(TIME_FMT)}`|\n'
+        )
         setlocale(LC_TIME, loc)
         return body
 
