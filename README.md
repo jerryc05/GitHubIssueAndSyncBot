@@ -102,12 +102,14 @@ try {
   try (IssueReport ir = new IssueReport(e)) {
     ir.appendBody("You can add lines in body here ...")
       .appendBody("You can add more lines in body here ...")
-      .withMilestone("name_of_milestone")  // Add milestone if you wish
+      // .withMilestone("name_of_milestone")  // Add milestone if you wish
       .withLabels(List.of("bug", "java"))  // Add labels here
+
       // Only the first assignee will be assigned if you are using GitHub free
-      .withAssignees(List.of("github_userid_1","github_userid_2"))
+      // .withAssignees(List.of("github_userid_1","github_userid_2"))
+
       // Usually you don't need this unless you want to log another timestamp
-      .withUnixEpoch(unixEpoch)
+      .withUnixEpoch(unixEpoch);
       // `ir` will be automatically submitted after this try block
   }
 }
@@ -118,12 +120,14 @@ try {
 try (IssueReport ir = new IssueReport("Issue title")) {
   ir.appendBody("You can add lines in body here ...")
     .appendBody("You can add more lines in body here ...")
-    .withMilestone("name_of_milestone")  // Add milestone if you wish
+    // .withMilestone("name_of_milestone")  // Add milestone if you wish
     .withLabels(List.of("bug", "java"))  // Add labels here
+
     // Only the first assignee will be assigned if you are using GitHub free
-    .withAssignees(List.of("github_userid_1","github_userid_2"))
+    // .withAssignees(List.of("github_userid_1","github_userid_2"))
+
     // Usually you don't need this unless you want to log another timestamp
-    .withUnixEpoch(unixEpoch)
+    .withUnixEpoch(unixEpoch);
     // `ir` will be automatically submitted after this try block
 }
 ```
@@ -136,20 +140,22 @@ IssueReport ir;
 try {
   // balabala
 } except (Exception e) {
-  ir = new IssueReport(e)
+  ir = new IssueReport(e);
 }
 
 // If you only have a message to report
-ir = new IssueReport("Issue title")
+ir = new IssueReport("Issue title");
 
 // Submit this issue
 ir.appendBody("You can add lines in body here ...")
   .appendBody("You can add more lines in body here ...")
-  .withMilestone("name_of_milestone")  // Add milestone if you wish
+  // .withMilestone("name_of_milestone")  // Add milestone if you wish
   .withLabels(List.of("bug", "java"))  // Add labels here
+
   // Only the first assignee will be assigned if you are using GitHub free
-  .withAssignees(List.of("github_userid_1","github_userid_2"))
+  // .withAssignees(List.of("github_userid_1","github_userid_2"))
+  
   // Usually you don't need this unless you want to log another timestamp
   .withUnixEpoch(unixEpoch)
-  .submit()  // Don't forget to submit
+  .submit();  // Don't forget to submit
 ```
