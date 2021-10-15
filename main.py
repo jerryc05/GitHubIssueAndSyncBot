@@ -129,6 +129,8 @@ def new_sess(jwt: bool = False, acc_tok: bool = False):
 
 
 def get_inst_acc_tok(cached: bool = True) -> str:
+    self_check()
+
     db_f = Path(__file__).parent / DB_PATH
     retry = True
     token = ''
