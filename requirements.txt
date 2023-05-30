@@ -1,4 +1,4 @@
-cryptography~=3.4.7
-PyJWT~=2.4.0
-pytz~=2021.1
-requests~=2.25.1
+cryptography
+PyJWT
+pytz
+requests
